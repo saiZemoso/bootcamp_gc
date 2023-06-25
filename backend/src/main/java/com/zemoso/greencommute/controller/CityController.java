@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@CrossOrigin({"http://ec2-44-214-142-66.compute-1.amazonaws.com","http://localhost:8080"})
+@CrossOrigin({"http://ec2-3-239-109-151.compute-1.amazonaws.com","http://localhost:8080"})
 @RequestMapping("/v1/aqi")
 public class CityController {
 
