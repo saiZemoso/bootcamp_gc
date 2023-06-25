@@ -1,0 +1,49 @@
+name: backend_app_workflow
+
+on:
+    push:
+        paths:
+            "backend/**"
+
+jobs:
+
+    backend_job:
+
+        runs-on: ubuntu-latest
+
+        steps:
+
+            - name: checkout the repo
+              uses: actions/checkout@v3
+
+            - name: Install Java
+              uses: actions/setup-java@v3
+              with:
+                java-version: '11'
+                distribution: 'temurin'
+                cache: 'maven'
+            
+            - name: Install Dependencies
+              run: |
+                cd backend
+                mvn clean install -DskipTests
+            
+            - name: Login and Build and Push image
+              run: |
+                cd backend
+                docker build -t ghcr.io/${{ secrets.GIT_USERNAME }}/bootcamp_backend_app:v${{ github.run_number }} .
+                docker login ghcr.io -u ${{ secrets.GIT_USERNAME }} -p ${{ secrets.GIT_TOKEN }}
+                docker push ghcr.io/${{ secrets.GIT_USERNAME }}/bootcamp_backend_app:v${{ github.run_number }}
+
+            - name: Deploy to EC2
+              env:
+                PRIVATE_KEY: ${{secrets.PRIVATE_KEY}}
+              run: |
+                echo "${PRIVATE_KEY}" > my-first-pem
+                chmod 600 my-first-pem
+                ssh -o StrictHostKeyChecking=no -i "my-first-pem" ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} '
+                    docker stop backend
+                    docker login ghcr.io -u ${{ secrets.GIT_USERNAME }} -p ${{ secrets.GIT_TOKEN }}
+                    docker run -d -p 8000:8000 --name=backend ghcr.io/${{ secrets.GIT_USERNAME }}/bootcamp_backend_app:v${{ github.run_number }}
+                '
+                rm my-first-pem
