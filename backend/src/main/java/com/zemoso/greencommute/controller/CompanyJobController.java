@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@CrossOrigin({"http://ec2-3-237-179-32.compute-1.amazonaws.com","http://localhost:8080"})
+@CrossOrigin({"http://ec2-44-197-169-27.compute-1.amazonaws.com","http://localhost:8080"})
 @RequestMapping("v1/jobs")
 public class CompanyJobController {
 
